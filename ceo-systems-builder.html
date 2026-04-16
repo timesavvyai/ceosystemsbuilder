@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The CEO Systems Builder™</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@1,300;1,500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0008;--plum:#2E0830;--purple:#4A0E52;--gold:#C9A84C;--hot:#F0C842;--pale:#F7E8B0;--blush:#EDD0E4;--white:#FFF8F2;--red:#8B1A2A;--border:rgba(201,168,76,0.22);--borderHot:rgba(240,200,66,0.5);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--white);font-family:'Montserrat',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.7;}
+
+.stripe-bg{position:fixed;inset:0;background:repeating-linear-gradient(-55deg,transparent,transparent 40px,rgba(201,168,76,0.015) 40px,rgba(201,168,76,0.015) 41px);pointer-events:none;z-index:0;}
+.bleed-l{position:fixed;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--hot),var(--red),var(--gold),var(--purple));z-index:10;}
+.bleed-r{position:fixed;right:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--purple),var(--gold));opacity:0.3;z-index:10;}
+
+.wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:0 28px 100px;}
+
+/* HEADER */
+.hdr{padding:56px 0 44px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;opacity:0;animation:up .5s .1s ease forwards;}
+.dot-pulse{width:6px;height:6px;background:var(--hot);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,200,66,.4);}50%{box-shadow:0 0 0 6px rgba(240,200,66,0);}}
+.hdr h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(54px,11vw,110px);line-height:.9;letter-spacing:2px;color:var(--white);opacity:0;animation:up .6s .2s ease forwards;}
+.hdr h1 .gw{color:var(--hot);text-shadow:0 0 40px rgba(240,200,66,.3);}
+.hdr h1 .ow{-webkit-text-stroke:2px rgba(201,168,76,.45);color:transparent;}
+.hdr-tm{font-family:'Montserrat',sans-serif;font-size:.17em;font-weight:700;color:var(--gold);vertical-align:super;letter-spacing:0;}
+.rule{width:100%;height:1px;background:linear-gradient(90deg,var(--hot),rgba(201,168,76,.3),transparent);margin:22px 0 18px;opacity:0;animation:up .6s .35s ease forwards;}
+.hdr-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(17px,2.5vw,22px);color:var(--blush);font-weight:300;opacity:0;animation:up .6s .4s ease forwards;line-height:1.5;}
+.hdr-sub strong{color:var(--pale);font-style:normal;font-weight:600;}
+@keyframes up{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+/* CARD */
+.card{background:linear-gradient(160deg,rgba(46,8,48,.95) 0%,rgba(13,0,8,.98) 100%);border:1px solid var(--border);border-radius:2px;padding:52px 56px;position:relative;overflow:hidden;margin-bottom:20px;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--hot),var(--gold),var(--red),var(--gold));background-size:300% auto;animation:slide 4s linear infinite;}
+@keyframes slide{to{background-position:300% center;}}
+.card-bg{position:absolute;bottom:0;right:0;font-family:'Bebas Neue',sans-serif;font-size:180px;line-height:1;color:rgba(201,168,76,.025);pointer-events:none;letter-spacing:-5px;}
+
+/* STEP TRACK */
+.track{display:flex;align-items:center;margin-bottom:40px;}
+.tnode{display:flex;align-items:center;gap:0;flex:1;}
+.tnum{width:32px;height:32px;border:2px solid rgba(201,168,76,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:rgba(201,168,76,.3);transition:all .4s;flex-shrink:0;}
+.tnode.active .tnum{border-color:var(--hot);color:var(--ink);background:var(--hot);box-shadow:0 0 20px rgba(240,200,66,.4);}
+.tnode.done .tnum{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1);}
+.tline{flex:1;height:2px;background:rgba(201,168,76,.1);}
+.tline.filled{background:linear-gradient(90deg,var(--gold),rgba(201,168,76,.4));}
+.tlbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.25);margin:0 10px;white-space:nowrap;transition:color .4s;}
+.tnode.active .tlbl{color:var(--gold);}
+.tnode.done .tlbl{color:rgba(201,168,76,.45);}
+
+/* Q STYLES */
+.qlbl{font-size:10px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--hot);margin-bottom:14px;}
+.qtext{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,5vw,48px);color:var(--white);line-height:1.05;letter-spacing:1px;margin-bottom:8px;}
+.qsub{font-size:13px;color:rgba(237,208,228,.55);font-style:italic;margin-bottom:32px;line-height:1.65;}
+
+/* FIELDS */
+.field{margin-bottom:22px;}
+.flbl{display:block;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.6);margin-bottom:10px;}
+.fsel,.finput,.ftarea{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:2px;padding:15px 20px;color:var(--white);font-family:'Montserrat',sans-serif;font-size:14px;outline:none;transition:all .2s;-webkit-appearance:none;}
+.fsel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23C9A84C' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 18px center;padding-right:42px;cursor:pointer;}
+.fsel option{background:#1a0020;color:var(--white);}
+.ftarea{min-height:110px;resize:vertical;line-height:1.65;}
+.fsel::placeholder,.finput::placeholder,.ftarea::placeholder{color:rgba(237,208,228,.25);}
+.fsel:focus,.finput:focus,.ftarea:focus{border-color:var(--hot);background:rgba(240,200,66,.04);box-shadow:0 0 0 3px rgba(240,200,66,.07);}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:9px;}
+.chip{background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.18);border-radius:2px;padding:10px 16px;font-size:12px;font-weight:600;color:rgba(237,208,228,.5);cursor:pointer;transition:all .2s;user-select:none;letter-spacing:.3px;}
+.chip:hover{border-color:rgba(201,168,76,.4);color:var(--pale);background:rgba(201,168,76,.06);}
+.chip.on{background:rgba(240,200,66,.12);border-color:var(--hot);color:var(--pale);font-weight:700;box-shadow:0 0 12px rgba(240,200,66,.1);}
+
+/* BUTTONS */
+.brow{display:flex;justify-content:space-between;align-items:center;margin-top:36px;gap:14px;}
+.bback{background:transparent;border:1px solid rgba(201,168,76,.2);color:rgba(201,168,76,.5);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;padding:14px 22px;border-radius:2px;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.bback:hover{border-color:var(--gold);color:var(--gold);}
+.bgo{flex:1;max-width:280px;margin-left:auto;background:linear-gradient(135deg,var(--hot),var(--gold));border:none;color:var(--ink);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;padding:18px 32px;border-radius:2px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.bgo::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s;}
+.bgo:hover::after{opacity:1;}
+.bgo:hover{box-shadow:0 12px 40px rgba(240,200,66,.35);transform:translateY(-2px);}
+.bgo:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* BUILD SCREEN */
+#buildScr{display:none;text-align:center;padding:60px 20px;}
+#buildScr.on{display:block;}
+.bglyph{font-size:64px;margin-bottom:28px;display:block;animation:spinPulse 2s ease-in-out infinite;}
+@keyframes spinPulse{0%,100%{transform:rotate(0deg) scale(1);}50%{transform:rotate(180deg) scale(1.1);}}
+.bh{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,52px);color:var(--hot);letter-spacing:2px;margin-bottom:10px;}
+.bsub{font-size:14px;color:rgba(237,208,228,.5);font-style:italic;margin-bottom:40px;}
+.blog{max-width:380px;margin:0 auto;text-align:left;display:flex;flex-direction:column;gap:10px;}
+.blogline{display:flex;align-items:center;gap:14px;font-size:12px;color:rgba(237,208,228,.2);padding:12px 16px;border:1px solid transparent;border-radius:2px;transition:all .5s;}
+.blogline.lit{color:var(--pale);background:rgba(201,168,76,.06);border-color:rgba(201,168,76,.15);}
+.blogline.done{color:rgba(201,168,76,.5);border-color:transparent;background:transparent;}
+.bdot{width:8px;height:8px;border-radius:50%;background:rgba(201,168,76,.15);flex-shrink:0;transition:all .4s;}
+.blogline.lit .bdot{background:var(--hot);box-shadow:0 0 10px rgba(240,200,66,.6);}
+.blogline.done .bdot{background:rgba(201,168,76,.4);box-shadow:none;}
+
+/* RESULT */
+#resultScr{display:none;}
+#resultScr.on{display:block;animation:up .5s ease both;}
+
+.rcrown{text-align:center;padding:44px 36px 36px;background:linear-gradient(160deg,rgba(74,14,82,.6),rgba(13,0,8,.8));border:1px solid var(--borderHot);border-radius:2px;margin-bottom:20px;position:relative;overflow:hidden;}
+.rcrown::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--hot),var(--gold),var(--hot));background-size:200% auto;animation:slide 3s linear infinite;}
+.rcrown::after{content:'CEO SYSTEMS BUILDER';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',sans-serif;font-size:80px;color:rgba(201,168,76,.025);white-space:nowrap;pointer-events:none;}
+.rbadge{display:inline-block;background:linear-gradient(135deg,var(--hot),var(--gold));color:var(--ink);font-size:9px;font-weight:800;letter-spacing:3px;text-transform:uppercase;padding:6px 16px;border-radius:1px;margin-bottom:20px;}
+.sysname{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,54px);color:var(--white);letter-spacing:2px;line-height:1;margin-bottom:10px;}
+.systag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(16px,2.5vw,21px);color:var(--blush);font-weight:300;}
+
+.sblock{border:1px solid var(--border);border-radius:2px;padding:32px 36px;margin-bottom:16px;position:relative;background:rgba(46,8,48,.4);overflow:hidden;}
+.sblock::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--hot),var(--gold));}
+.sblbl{font-size:9px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:12px;}
+.sblbl::after{content:'';flex:1;height:1px;background:rgba(201,168,76,.1);}
+.sbtext{font-size:14px;line-height:1.85;color:var(--blush);white-space:pre-wrap;}
+.sbtext strong{color:var(--pale);font-weight:700;}
+
+.steprow{display:flex;gap:18px;padding:18px 0;border-bottom:1px solid rgba(201,168,76,.07);animation:up .4s ease both;}
+.steprow:last-child{border-bottom:none;padding-bottom:0;}
+.stepbadge{width:36px;height:36px;border:1px solid var(--borderHot);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--hot);flex-shrink:0;background:rgba(240,200,66,.06);}
+.stepcontent h4{font-size:13px;font-weight:800;color:var(--pale);margin-bottom:5px;text-transform:uppercase;letter-spacing:.8px;}
+.stepcontent p{font-size:13px;color:rgba(237,208,228,.65);line-height:1.65;margin-bottom:6px;}
+.pline{font-style:italic;color:rgba(247,232,176,.7);font-size:13px;border-left:2px solid rgba(201,168,76,.25);padding-left:10px;margin:8px 0;line-height:1.6;}
+.pill-tool{display:inline-block;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);border-radius:1px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;}
+.pill-time{display:inline-block;background:rgba(139,26,42,.2);border:1px solid rgba(139,26,42,.4);border-radius:1px;padding:3px 10px;font-size:10px;font-weight:700;color:#E88;letter-spacing:1px;margin-left:6px;}
+
+.qwblock{background:linear-gradient(135deg,rgba(240,200,66,.1),rgba(201,168,76,.04));border:1px solid var(--hot);border-radius:2px;padding:32px 36px;margin-bottom:16px;}
+.qwlbl{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--hot);margin-bottom:12px;}
+.qwtext{font-size:15px;color:var(--white);line-height:1.75;font-weight:500;}
+.qwtext strong{color:var(--hot);}
+.hrsback{display:flex;align-items:center;gap:16px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(201,168,76,.15);}
+.hrsnum{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--hot);line-height:1;text-shadow:0 0 30px rgba(240,200,66,.3);}
+.hrslbl{font-size:13px;color:var(--blush);line-height:1.5;}
+.hrslbl span{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-top:2px;}
+
+.arow{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;}
+.boutline{flex:1;min-width:140px;background:transparent;border:1px solid var(--borderHot);color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:16px 20px;border-radius:2px;cursor:pointer;transition:all .2s;}
+.boutline:hover{background:rgba(240,200,66,.07);box-shadow:0 0 20px rgba(240,200,66,.12);}
+.brebuild{flex:1;min-width:140px;background:linear-gradient(135deg,var(--purple),var(--plum));border:1px solid rgba(201,168,76,.3);color:var(--pale);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:16px 20px;border-radius:2px;cursor:pointer;transition:all .2s;}
+.brebuild:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:0 8px 24px rgba(46,8,48,.6);}
+
+/* LOUNGE */
+.lounge{border:1px solid var(--gold);border-radius:2px;padding:48px 52px;text-align:center;margin-top:24px;position:relative;overflow:hidden;display:none;background:linear-gradient(160deg,rgba(46,8,48,.9),rgba(13,0,8,.95));}
+.lounge.on{display:block;animation:up .6s .3s ease both;}
+.lounge::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--hot),var(--gold));background-size:200% auto;animation:slide 3s linear infinite;}
+.lounge::after{content:'LOUNGE';position:absolute;bottom:-20px;right:-10px;font-family:'Bebas Neue',sans-serif;font-size:140px;color:rgba(201,168,76,.025);pointer-events:none;letter-spacing:-5px;}
+.lngbrow{font-size:9px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+.lngh{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,48px);color:var(--white);letter-spacing:2px;line-height:1.1;margin-bottom:14px;}
+.lngh .gw{color:var(--hot);}
+.lngp{font-size:14px;color:rgba(237,208,228,.6);line-height:1.8;max-width:500px;margin:0 auto 32px;}
+.blng{display:inline-block;background:linear-gradient(135deg,var(--hot),var(--gold));color:var(--ink);font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;padding:20px 52px;border-radius:2px;text-decoration:none;cursor:pointer;border:none;transition:all .3s;}
+.blng:hover{box-shadow:0 14px 50px rgba(240,200,66,.4);transform:translateY(-2px);}
+.lngproof{margin-top:16px;font-size:11px;color:rgba(201,168,76,.4);font-style:italic;}
+
+/* HISTORY */
+.hist{margin-top:44px;display:none;}
+.hist.on{display:block;}
+.histlbl{font-size:9px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:rgba(201,168,76,.3);margin-bottom:14px;}
+.histchips{display:flex;flex-wrap:wrap;gap:8px;}
+.histchip{background:rgba(255,255,255,.02);border:1px solid rgba(201,168,76,.1);border-radius:1px;padding:8px 14px;font-size:11px;color:rgba(237,208,228,.35);cursor:pointer;transition:all .2s;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+.histchip:hover{border-color:rgba(201,168,76,.3);color:rgba(237,208,228,.6);}
+
+.footer{text-align:center;padding:56px 0 0;font-size:11px;color:rgba(237,208,228,.2);line-height:2;}
+.footer strong{color:rgba(201,168,76,.4);}
+
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(16px);background:linear-gradient(135deg,var(--hot),var(--gold));color:var(--ink);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;padding:14px 28px;border-radius:2px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.screen{display:none;}
+.screen.on{display:block;animation:up .4s ease both;}
+
+@media(max-width:640px){
+  .card,.lounge{padding:32px 22px;}
+  .sblock{padding:24px 20px;}
+  .brow{flex-direction:column-reverse;}
+  .bgo,.bback{width:100%;max-width:100%;}
+  .arow{flex-direction:column;}
+  .tlbl{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="stripe-bg"></div>
+<div class="bleed-l"></div>
+<div class="bleed-r"></div>
+
+<div class="wrap">
+
+<div class="hdr">
+  <div class="eyebrow"><div class="dot-pulse"></div> Time-Savvy Systems™ · AI-Powered Tool</div>
+  <h1>The <span class="gw">CEO</span><br><span class="ow">Systems</span><br>Builder<span class="hdr-tm">™</span></h1>
+  <div class="rule"></div>
+  <p class="hdr-sub"><strong>Tell me your chaos.</strong> I'll hand you back a system you can run starting today.</p>
+</div>
+
+<div class="card">
+  <div class="card-bg">CSB</div>
+
+  <!-- S1 -->
+  <div class="screen on" id="s1">
+    <div class="track">
+      <div class="tnode active"><div class="tnum">1</div><div class="tlbl">Your Biz</div></div>
+      <div class="tline"></div>
+      <div class="tnode"><div class="tnum">2</div><div class="tlbl">Detail</div></div>
+      <div class="tline"></div>
+      <div class="tnode"><div class="tnum">3</div><div class="tlbl">Final</div></div>
+    </div>
+    <div class="qlbl">Step 01 — Your Business</div>
+    <h2 class="qtext">Let's Start With You.</h2>
+    <p class="qsub">The more real you are, the more useful your system will be. No filters needed.</p>
+    <div class="field">
+      <label class="flbl">What do you do?</label>
+      <select class="fsel" id="role">
+        <option value="">Choose your role...</option>
+        <option value="coach">Coach — life, business, health, mindset</option>
+        <option value="consultant">Consultant or Strategist</option>
+        <option value="course_creator">Course Creator or Educator</option>
+        <option value="service_provider">Service Provider — VA, designer, copywriter, OBM</option>
+        <option value="membership_owner">Membership or Community Owner</option>
+        <option value="content_creator">Content Creator or Influencer</option>
+        <option value="ecommerce">Product or E-Commerce Owner</option>
+        <option value="agency">Agency or Team Leader</option>
+        <option value="multi">Multiple — I wear all the hats</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="flbl">What's your biggest chaos right now?</label>
+      <textarea class="ftarea" id="chaos" placeholder="Be specific. Example: I spend 3+ hours a week writing social content and it still feels inconsistent. Or: My client onboarding is different every single time and it's exhausting me."></textarea>
+    </div>
+    <div class="brow"><button class="bgo" onclick="toS2()">Next — Tell Me More →</button></div>
+  </div>
+
+  <!-- S2 -->
+  <div class="screen" id="s2">
+    <div class="track">
+      <div class="tnode done"><div class="tnum">✓</div><div class="tlbl">Your Biz</div></div>
+      <div class="tline filled"></div>
+      <div class="tnode active"><div class="tnum">2</div><div class="tlbl">Detail</div></div>
+      <div class="tline"></div>
+      <div class="tnode"><div class="tnum">3</div><div class="tlbl">Final</div></div>
+    </div>
+    <div class="qlbl">Step 02 — The Details</div>
+    <h2 class="qtext">A Little More Context.</h2>
+    <p class="qsub">This is what makes your system actually yours — not recycled advice from a blog post.</p>
+    <div class="field">
+      <label class="flbl">How are you handling it right now?</label>
+      <div class="chips">
+        <div class="chip" onclick="pick(this,'current','winging')">🤷 Winging it honestly</div>
+        <div class="chip" onclick="pick(this,'current','manual')">📋 All manual, all me</div>
+        <div class="chip" onclick="pick(this,'current','inconsistent')">🔄 Inconsistently — when I remember</div>
+        <div class="chip" onclick="pick(this,'current','scattered')">💥 Scattered across tools and docs</div>
+        <div class="chip" onclick="pick(this,'current','partial')">⚙️ Partial system that's broken</div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="flbl">Tools you're already using (pick all)</label>
+      <div class="chips">
+        <div class="chip" onclick="multi(this,'tools','chatgpt')">ChatGPT</div>
+        <div class="chip" onclick="multi(this,'tools','claude')">Claude</div>
+        <div class="chip" onclick="multi(this,'tools','canva')">Canva</div>
+        <div class="chip" onclick="multi(this,'tools','notion')">Notion</div>
+        <div class="chip" onclick="multi(this,'tools','trello')">Trello</div>
+        <div class="chip" onclick="multi(this,'tools','systeme')">Systeme.io</div>
+        <div class="chip" onclick="multi(this,'tools','zapier')">Zapier / Make</div>
+        <div class="chip" onclick="multi(this,'tools','skool')">Skool</div>
+        <div class="chip" onclick="multi(this,'tools','sheets')">Google Sheets</div>
+        <div class="chip" onclick="multi(this,'tools','none')">None yet</div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="flbl">What does success look like for this system?</label>
+      <textarea class="ftarea" id="success" placeholder="Example: I batch a full week of content in 2 hours. New clients onboard without me touching it. I stop making the same 10 decisions every Monday." style="min-height:90px;"></textarea>
+    </div>
+    <div class="brow">
+      <button class="bback" onclick="show('s1')">← Back</button>
+      <button class="bgo" onclick="toS3()">Next — Almost There →</button>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="screen" id="s3">
+    <div class="track">
+      <div class="tnode done"><div class="tnum">✓</div><div class="tlbl">Your Biz</div></div>
+      <div class="tline filled"></div>
+      <div class="tnode done"><div class="tnum">✓</div><div class="tlbl">Detail</div></div>
+      <div class="tline filled"></div>
+      <div class="tnode active"><div class="tnum">3</div><div class="tlbl">Final</div></div>
+    </div>
+    <div class="qlbl">Step 03 — Final Layer</div>
+    <h2 class="qtext">Last Round.<br>Then I Build.</h2>
+    <p class="qsub">These two answers shape exactly how your system gets built. Don't skip them.</p>
+    <div class="field">
+      <label class="flbl">Time you can realistically give this system per week?</label>
+      <div class="chips">
+        <div class="chip" onclick="pick(this,'time','30min')">30 min or less</div>
+        <div class="chip" onclick="pick(this,'time','1hr')">About 1 hour</div>
+        <div class="chip" onclick="pick(this,'time','2hr')">1–2 hours</div>
+        <div class="chip" onclick="pick(this,'time','3hr')">2–3 hours</div>
+        <div class="chip" onclick="pick(this,'time','flex')">Flexible — as long as it saves more than it costs</div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="flbl">Your AI comfort level?</label>
+      <div class="chips">
+        <div class="chip" onclick="pick(this,'ai','beginner')">🌱 Beginner — still figuring it out</div>
+        <div class="chip" onclick="pick(this,'ai','some')">⚡ Some experience — use it but not consistently</div>
+        <div class="chip" onclick="pick(this,'ai','confident')">🔥 Confident — AI is already in my workflow</div>
+        <div class="chip" onclick="pick(this,'ai','advanced')">👑 Advanced — give me the deep cuts</div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="flbl">Anything else? (optional)</label>
+      <textarea class="ftarea" id="extra" placeholder="Team size, hard constraints, what you've already tried, non-negotiables..." style="min-height:80px;"></textarea>
+    </div>
+    <div class="brow">
+      <button class="bback" onclick="show('s2')">← Back</button>
+      <button class="bgo" onclick="build()">✦ Build My System</button>
+    </div>
+  </div>
+
+  <!-- BUILD -->
+  <div id="buildScr">
+    <span class="bglyph">⚙️</span>
+    <div class="bh">Building Your System...</div>
+    <div class="bsub">Hang tight. This is the part that usually takes weeks.</div>
+    <div class="blog">
+      <div class="blogline" id="l1"><div class="bdot"></div>Analyzing your chaos pattern</div>
+      <div class="blogline" id="l2"><div class="bdot"></div>Mapping your workflow architecture</div>
+      <div class="blogline" id="l3"><div class="bdot"></div>Assigning AI tools to every step</div>
+      <div class="blogline" id="l4"><div class="bdot"></div>Writing your implementation guide</div>
+      <div class="blogline" id="l5"><div class="bdot"></div>Finalizing your CEO System</div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultScr">
+    <div class="rcrown">
+      <div class="rbadge">✦ Your Custom CEO System</div>
+      <div class="sysname" id="sysName">—</div>
+      <div class="systag" id="sysTag"></div>
+    </div>
+    <div class="sblock"><div class="sblbl">System Overview</div><div class="sbtext" id="ovText"></div></div>
+    <div class="sblock"><div class="sblbl">Your Workflow — Step by Step</div><div id="stepsOut"></div></div>
+    <div class="sblock"><div class="sblbl">Your Weekly Rhythm</div><div class="sbtext" id="rhythmText"></div></div>
+    <div class="qwblock">
+      <div class="qwlbl">⚡ Your 30-Minute Quick Win — Start Today</div>
+      <div class="qwtext" id="qwText"></div>
+      <div class="hrsback">
+        <div class="hrsnum" id="hrsNum">—</div>
+        <div class="hrslbl">hours per week<br>estimated back in your life<span>Run this system consistently</span></div>
+      </div>
+    </div>
+    <div class="arow">
+      <button class="boutline" onclick="copyIt()">⬇ Copy My System</button>
+      <button class="brebuild" onclick="reset()">✦ Build Another System</button>
+    </div>
+  </div>
+
+</div><!-- /card -->
+
+<div class="lounge" id="lounge">
+  <div class="lngbrow">✦ Your system is built. Now make it unstoppable.</div>
+  <h2 class="lngh">Ready to Run Your Business<br>Like the <span class="gw">CEO</span> You Are?</h2>
+  <p class="lngp">The Time-Savvy Mom Lounge is where ambitious women implement AI systems that actually stick — and buy back 10–25 hours a week doing it. Templates, live coaching, community, and zero hustle culture required.</p>
+  <button class="blng" onclick="window.open('https://timesavvysystems.com','_blank')">Join the Lounge — $77/Month →</button>
+  <div class="lngproof">No fluff. No contracts. Just systems that work while you live your life.</div>
+</div>
+
+<div class="hist" id="hist">
+  <div class="histlbl">Previously Built Systems</div>
+  <div class="histchips" id="histChips"></div>
+</div>
+
+<div class="footer">
+  <strong>The CEO Systems Builder™</strong> · Time-Savvy Systems™ by Martha Brown<br>
+  Helping ambitious women buy back 10–25 hours a week with AI + simple systems.<br>
+  <em>"Your goals aren't too big. Your week is too manual."</em>
+</div>
+</div>
+
+<div class="toast" id="toast">✦ System Copied!</div>
+
+<script>
+const D={};const hist=[];let copyTxt='';
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo({top:0,behavior:'smooth'});}
+function pick(el,k,v){el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');D[k]=v;}
+function multi(el,k,v){el.classList.toggle('on');if(!D[k])D[k]=[];if(el.classList.contains('on')){if(!D[k].includes(v))D[k].push(v);}else D[k]=D[k].filter(x=>x!==v);}
+
+function flash(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>{t.classList.remove('on');t.textContent='✦ System Copied!';},3200);}
+
+function toS2(){
+  if(!document.getElementById('role').value){flash('Pick your role first.');return;}
+  if(document.getElementById('chaos').value.trim().length<20){flash('Give me a bit more detail on your chaos.');return;}
+  show('s2');
+}
+function toS3(){
+  if(document.getElementById('success').value.trim().length<15){flash('What does success look like? One sentence is enough.');return;}
+  show('s3');
+}
+
+function build(){
+  if(!D.time){flash('How much time per week can you give this?');return;}
+  if(!D.ai){flash('What\'s your AI comfort level?');return;}
+
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('buildScr').classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const logs=['l1','l2','l3','l4','l5'];
+  logs.forEach((id,i)=>{
+    setTimeout(()=>{
+      if(i>0){document.getElementById(logs[i-1]).classList.remove('lit');document.getElementById(logs[i-1]).classList.add('done');}
+      document.getElementById(id).classList.add('lit');
+    },i*1000);
+  });
+
+  const role=document.getElementById('role').value;
+  const chaos=document.getElementById('chaos').value.trim();
+  const success=document.getElementById('success').value.trim();
+  const extra=document.getElementById('extra').value.trim();
+  const current=D.current||'winging it';
+  const tools=(D.tools||[]).join(', ')||'none yet';
+  const time=D.time||'1hr';
+  const ai=D.ai||'some';
+
+  const prompt=`You are the CEO Systems Builder™ — a sharp, no-fluff AI workflow architect created by Martha Brown of Time-Savvy Systems™. Build a complete, custom, ready-to-run AI-powered workflow system.
+
+USER:
+Role: ${role}
+Chaos: "${chaos}"
+Currently handling it: ${current}
+Tools: ${tools}
+Success looks like: "${success}"
+Time available: ${time}
+AI level: ${ai}
+Extra: ${extra||'none'}
+
+OUTPUT: A single valid JSON object only. No markdown. No commentary. No code fences. Start your response with { and end with }
+
+{
+  "systemName": "Punchy 4-7 word system name ending with ™, specific to their situation",
+  "tagline": "One punchy line — what this system does and why it matters to them",
+  "overview": "3 sentences. What this replaces, why it works for them, the core shift. Bold key phrases with **text**.",
+  "steps": [
+    {"num":1,"title":"STEP TITLE CAPS","what":"Exactly what they do. Specific.","aiTool":"Exact AI tool name","aiPrompt":"Copy-paste ready prompt or exact action","time":"X min"},
+    {"num":2,"title":"STEP TITLE CAPS","what":"Exactly what they do.","aiTool":"Exact AI tool name","aiPrompt":"Copy-paste ready prompt","time":"X min"},
+    {"num":3,"title":"STEP TITLE CAPS","what":"Exactly what they do.","aiTool":"Exact AI tool name","aiPrompt":"Copy-paste ready prompt","time":"X min"},
+    {"num":4,"title":"STEP TITLE CAPS","what":"Exactly what they do.","aiTool":"Exact AI tool name","aiPrompt":"Copy-paste ready prompt","time":"X min"},
+    {"num":5,"title":"STEP TITLE CAPS","what":"Exactly what they do.","aiTool":"Exact AI tool name","aiPrompt":"Copy-paste ready prompt","time":"X min"}
+  ],
+  "weeklyRhythm": "Specific day, trigger, duration, output. How this runs on repeat every single week.",
+  "quickWin": "The single most impactful thing they can do in the next 30 minutes to start today. Direct. No fluff.",
+  "hoursBack": "X–Y"
+}`;
+
+  const renderTime = Date.now() + 5800;
+  const doRender = (sys) => {
+    const wait = Math.max(0, renderTime - Date.now());
+    setTimeout(() => render(sys, chaos), wait);
+  };
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user', content:prompt}]})
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  })
+  .then(function(data) {
+    try {
+      const raw = data.content.map(function(b){return b.text||'';}).join('');
+      const start = raw.indexOf('{');
+      const end = raw.lastIndexOf('}');
+      if (start < 0 || end < 0) throw new Error('no json');
+      const sys = JSON.parse(raw.slice(start, end + 1));
+      if (!sys.steps || !sys.systemName) throw new Error('incomplete');
+      doRender(sys);
+    } catch(e) {
+      console.log('Parse fallback:', e);
+      doRender(fallback(role, chaos, success, time, ai));
+    }
+  })
+  .catch(function(e) {
+    console.log('Fetch fallback:', e);
+    doRender(fallback(role, chaos, success, time, ai));
+  });
+}
+
+function fallback(role,chaos,success,time,ai){
+  const rn={coach:'Coach',consultant:'Consultant',course_creator:'Course Creator',service_provider:'Service Provider',membership_owner:'Membership Owner',content_creator:'Content Creator',ecommerce:'Product Owner',agency:'Agency Owner',multi:'CEO'}[role]||'CEO';
+  const hrs={30min:'3–5',1hr:'5–8',2hr:'8–12',3hr:'10–15',flex:'10–20'}[time]||'8–12';
+  return{
+    systemName:`The ${rn} Anti-Chaos System™`,
+    tagline:`Stop doing manually what AI was built to handle. Your week just got lighter.`,
+    overview:`This system targets your exact bottleneck — **"${chaos.substring(0,55)}..."** — and replaces it with a clean, repeatable AI-powered workflow. No more reinventing the wheel every week or making the same decisions on repeat. **This is the shift from reactive chaos to running it like a CEO.**`,
+    steps:[
+      {num:1,title:'MONDAY BRAIN DUMP & PRIORITIZE',what:'Spend 10 minutes dumping everything in your head into one AI prompt. Get it out of your brain and into a system.',aiTool:'Claude or ChatGPT',aiPrompt:`"Here's everything on my plate this week: [brain dump]. I'm a ${rn}. Identify my 3 highest-leverage priorities. Flag what I should delegate or hand to AI. Give me a clear focus order."`,time:'10 min'},
+      {num:2,title:'BATCH YOUR CONTENT IN ONE SESSION',what:'One focused batch session instead of scrambling daily. Create your week\'s content in a single block.',aiTool:'Claude or ChatGPT',aiPrompt:`"Write 5 social posts for a ${rn} in [your niche]. My tone is [describe it — sassy/warm/direct]. My audience is [describe them]. Topics this week: [list 5]. Make each punchy, real, and scroll-stopping."`,time:'45 min'},
+      {num:3,title:'TEMPLATIZE YOUR TOP 3 REPEATS',what:'Identify the 3 tasks you do every single week and build an AI template for each — so you never start from scratch again.',aiTool:'Claude or ChatGPT',aiPrompt:`"I repeat this task every week: [describe it in detail]. Build me a reusable prompt I can use every time. Make it specific enough to get a great result without me having to over-explain."`,time:'20 min'},
+      {num:4,title:'AUTOMATE ONE MANUAL PROCESS',what:'Pick the one manual process that annoys you most and set up a simple automation or AI shortcut to handle it without you.',aiTool:'Zapier, Make, or Notion AI',aiPrompt:`Map it: When [trigger event] happens → AI or automation does [action] → Result lands in [destination]. Start with one. Build from there.`,time:'30 min'},
+      {num:5,title:'FRIDAY REVIEW & REFINE',what:'15 minutes every Friday. What worked, what didn\'t, what to update. Your system gets sharper every single week.',aiTool:'Claude or ChatGPT',aiPrompt:`"Here's what happened in my business this week: [notes]. I'm a ${rn}. What patterns do you see? What should I systemize, cut, or improve for next week? Give me 3 specific next moves."`,time:'15 min'}
+    ],
+    weeklyRhythm:`**Monday 9am (10 min):** Brain dump + prioritize with AI. **Tuesday or Wednesday (45 min):** Content batch session — create the whole week at once. **Ongoing:** Use your templates for every repeat task — zero starting from scratch. **Friday 4pm (15 min):** Review, refine, update templates. Total system time: ~2 hours. Time saved: ${hrs} hours.`,
+    quickWin:`**Open Claude or ChatGPT right now and type:** "I'm a ${rn} and my biggest bottleneck is: ${chaos.substring(0,80)}. What's the fastest AI-powered system I can build today to fix this? Give me 5 specific steps." Read the output. Screenshot it. That's your starting point.`,
+    hoursBack:hrs
+  };
+}
+
+function fmt(t){if(!t)return'';return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
+
+function render(s,chaos){
+  document.getElementById('buildScr').classList.remove('on');
+  document.getElementById('sysName').textContent=s.systemName||'Your Custom CEO System™';
+  document.getElementById('sysTag').textContent=s.tagline||'';
+  document.getElementById('ovText').innerHTML=fmt(s.overview||'');
+  document.getElementById('rhythmText').innerHTML=fmt(s.weeklyRhythm||'');
+  document.getElementById('qwText').innerHTML=fmt(s.quickWin||'');
+  document.getElementById('hrsNum').textContent=(s.hoursBack||'8–12')+' hrs';
+
+  let sh='';
+  (s.steps||[]).forEach((st,i)=>{
+    sh+=`<div class="steprow" style="animation-delay:${i*.08}s">
+      <div class="stepbadge">${st.num||i+1}</div>
+      <div class="stepcontent">
+        <h4>${st.title||'Step '+(i+1)}</h4>
+        <p>${st.what||''}</p>
+        ${st.aiPrompt?`<div class="pline">"${st.aiPrompt}"</div>`:''}
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
+          ${st.aiTool?`<span class="pill-tool">🤖 ${st.aiTool}</span>`:''}
+          ${st.time?`<span class="pill-time">⏱ ${st.time}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('stepsOut').innerHTML=sh;
+
+  document.getElementById('resultScr').classList.add('on');
+  document.getElementById('lounge').classList.add('on');
+
+  copyTxt=buildCopy(s);
+  hist.unshift({name:s.systemName,chaos:chaos.substring(0,55)+(chaos.length>55?'...':'')});
+  renderHist();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function buildCopy(s){
+  let t=`${s.systemName}\n${s.tagline}\n\n`;
+  t+=`OVERVIEW\n${(s.overview||'').replace(/\*\*(.*?)\*\*/g,'$1')}\n\n`;
+  t+=`WORKFLOW STEPS\n`;
+  (s.steps||[]).forEach(st=>{
+    t+=`\nStep ${st.num}: ${st.title} (${st.time})\n${st.what}\n`;
+    if(st.aiPrompt)t+=`Prompt: "${st.aiPrompt}"\n`;
+    if(st.aiTool)t+=`Tool: ${st.aiTool}\n`;
+  });
+  t+=`\nWEEKLY RHYTHM\n${(s.weeklyRhythm||'').replace(/\*\*(.*?)\*\*/g,'$1')}\n\n`;
+  t+=`30-MIN QUICK WIN\n${(s.quickWin||'').replace(/\*\*(.*?)\*\*/g,'$1')}\n\n`;
+  t+=`HOURS BACK: ${s.hoursBack||'8–12'}/week\n\n`;
+  t+=`— Built by The CEO Systems Builder™\nTime-Savvy Systems™ · timesavvysystems.com`;
+  return t;
+}
+
+function copyIt(){
+  navigator.clipboard.writeText(copyTxt).then(()=>{flash('✦ System Copied!');}).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=copyTxt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash('✦ System Copied!');
+  });
+}
+
+function reset(){
+  ['resultScr'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById('lounge').classList.remove('on');
+  document.getElementById('buildScr').classList.remove('on');
+  ['role','chaos','success','extra'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  Object.keys(D).forEach(k=>delete D[k]);
+  ['l1','l2','l3','l4','l5'].forEach(id=>document.getElementById(id).classList.remove('lit','done'));
+  show('s1');
+}
+
+function renderHist(){
+  const w=document.getElementById('hist');const c=document.getElementById('histChips');
+  if(!hist.length){w.classList.remove('on');return;}
+  w.classList.add('on');
+  c.innerHTML=hist.slice(0,6).map(h=>`<div class="histchip" title="${h.chaos}">✦ ${h.name}</div>`).join('');
+}
+</script>
+</body>
+</html>
